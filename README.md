@@ -26,8 +26,9 @@ We tested all 94 printable ASCII characters as possible first characters. Each c
 
 The measured response times were approximately 43.4 ms, with standard deviations ranging from around 56 to 135 µs among the highest-ranked candidates.
 
-The character with the highest median response time was `G`. However, the difference between the highest-ranked candidates was only a few microseconds and was not statistically relevant to be used.
+The character with the highest median response time was `G`. However, the difference between the highest-ranked candidates was only a few microseconds and was not statistically relevant to be used. I make some other mesurement and each time the scirpt give me totally different result. 
 
 We therefore concluded that measuring the response time through Python and USB-UART was not sufficiently precise to identify the correct character reliably.
 
 Our next approach will use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine.
+The advantage is we will be less vunerable of electrica bruit
