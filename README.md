@@ -17,6 +17,28 @@ After identifying and exploiting potential vulnerabilities, we will also investi
 
 This repository documents my approach, experiments, results, and conclusions throughout the project.
 
+## Python environment
+
+Use Python 3.11 for this project. Python 3.14 currently installs an experimental
+MinGW-W64 NumPy build on Windows, which can crash while importing ChipWhisperer.
+
+Create the environment once from PowerShell:
+
+```powershell
+py -3.11 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+Run the ChipWhisperer connection check with:
+
+```powershell
+.\.venv\Scripts\python.exe to_delete.py
+```
+
+The scripts that use the UART connection can be run with the same
+`.venv\Scripts\python.exe` command.
+
 ### Timing attack 
 The first attack will be to exploit the repsonse time of
 
