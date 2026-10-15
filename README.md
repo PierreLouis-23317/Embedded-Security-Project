@@ -16,3 +16,18 @@ To achieve this, we will explore different attack techniques, mainly Timing Atta
 After identifying and exploiting potential vulnerabilities, we will also investigate possible countermeasures to improve the security of the system.
 
 This repository documents my approach, experiments, results, and conclusions throughout the project.
+
+### Timing attack 
+The first attack will be to exploit the repsonse time of
+
+Our first approach was to perform a timing attack through the UART interface, without using any prior knowledge of the password.
+
+We tested all 94 printable ASCII characters as possible first characters. Each candidate was followed by a fixed-length padding sequence and tested 30 times.
+
+The measured response times were approximately 43.4 ms, with standard deviations ranging from around 56 to 135 µs among the highest-ranked candidates.
+
+The character with the highest median response time was `G`. However, the difference between the highest-ranked candidates was only a few microseconds and was not statistically relevant to be used.
+
+We therefore concluded that measuring the response time through Python and USB-UART was not sufficiently precise to identify the correct character reliably.
+
+Our next approach will use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine.
