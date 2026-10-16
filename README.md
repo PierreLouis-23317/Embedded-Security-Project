@@ -55,6 +55,15 @@ We therefore concluded that measuring the response time through Python and USB-U
 Our next approach will use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine.
 The advantage is we will be less vunerable of electrica bruit
 
+### ChipWhisperer capture timeout
+
+`scope.capture()` waits for a trigger edge; sending bytes over UART alone does
+not trigger a capture. For the SPA notebook, connect the firmware trigger
+output to `TIO4` on the CW-Nano and configure the scope for `tio4` before
+calling `capture_trace`. The firmware must drive this output around the
+password-checking code. A timeout therefore means that no trigger edge was
+detected, not that the UART response was late. The notebook raises an
+actionable error in this case instead of attempting to plot an empty trace.
 
 ## early-exit 
 
