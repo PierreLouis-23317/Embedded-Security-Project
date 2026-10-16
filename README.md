@@ -151,3 +151,56 @@ Next steps:
   `scope.trigger.triggers = 'tio4'`, `scope.adc.basic_mode = "rising_edge"`.
 - Re-attempt trace capture and visually compare traces for different
   candidate passwords before building a full brute-force script.
+
+### Expected results
+
+Once the trigger is correctly wired, each capture window should correspond
+exactly to the time the firmware spends with pin 13 driven HIGH, i.e. the
+duration of `early_exit_compare()` (and, on a correct guess, the subsequent
+hashing routine as well). This matches the course's SPA methodology (see
+*SPA on RSA*, ES5T-T1/03): identify recurring patterns in the trace and map
+them back to the algorithm's branches.
+
+**What a trace should look like**
+
+- A short, mostly flat/low-activity region for most of the capture if the
+  attempt fails on an early character, since `early_exit_compare()` returns
+  almost immediately.
+- A visibly **longer active region** (more oscillation / more instructions
+  executed) when a leading character of the attempt matches the real
+  password, because the comparison loop runs one more iteration before
+  returning `false`.
+- Once all 8 characters match, the trace should extend noticeably further
+  still, covering `protected_section()`: salt generation (`random()` calls)
+  and the SHA3-256 hashing of the secret — a clearly longer and busier trace
+  than any failed attempt.
+
+**What we are looking for, concretely**
+
+- A usable metric is the **duration of the active/high-activity window**
+  (e.g. number of samples above a baseline threshold, or simply the time
+  between trigger high and trigger low if captured separately). This
+  duration should increase monotonically as more leading characters of a
+  guess match the real password — same principle as the `t_bad < t_correct`
+  relationship shown for the PIN-pad example in the course, and the
+  `Q`/`L` pattern mapping used for the RSA SPA example.
+- For a fixed, fully-wrong candidate character, repeated captures should be
+  highly similar to each other (low variance) — this is the "this part of
+  the trace stays highly similar" baseline mentioned in the course notes,
+  and is a good sanity check before trusting the metric.
+
+**Expected final deliverable**
+
+- The recovered password, confirmed by sending it and observing
+  `>> ACCESS GRANTED` instead of `>> ACCESS DENIED`.
+- The hash and salt printed by `protected_section()` in response to the
+  correct password, as required by the project's deliverables.
+- A plot (saved from the Jupyter notebook) showing at least:
+  - one trace for a fully incorrect attempt,
+  - one trace for a partially correct attempt (1–2 leading characters
+    correct),
+  - one trace for the fully correct password,
+  
+  illustrating the growing active-region duration described above — this
+  is the key piece of evidence for the "vulnerability correctly identified,
+  with proof" criterion in the write-up grading grid.
