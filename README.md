@@ -54,3 +54,16 @@ We therefore concluded that measuring the response time through Python and USB-U
 
 Our next approach will use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine.
 The advantage is we will be less vunerable of electrica bruit
+
+
+## early-exit 
+
+One of the vulnerabilities in the code is the early exit during password verification.
+
+The program compares the password character by character and stops as soon as one character is incorrect.
+
+We can exploit this vulnerability using a timing attack or power analysis. The more correct characters we enter, the more instructions the CPU executes. By measuring the execution time or power consumption, we could progressively recover the password.
+
+To counter this vulnerability, we can use a constant-time comparison. Instead of stopping at the first incorrect character, the program always checks the entire password and only returns the result at the end.
+
+We could also add a random delay before sending the response, making timing attacks more difficult. However, this would not prevent an attacker from analysing the CPU's power consumption.
