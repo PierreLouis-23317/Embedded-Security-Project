@@ -34,24 +34,9 @@ The USB port don't work. We need to find another way to communicate with the tar
 Before attacking anything, you need to know **what we are talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution. Of cours the classical Pin TX and RX of the arduinno weren't the pin in use to insert the password an error message say (**a completer**) see image below. 
 With the help of other student the solution was simple. With the use of PulseView software and a little common sense the TX port probably send a welcome message a the begining. we have just need to analyse every signal of the port of arduinno and see where there was a communication (fluation of bits). there was communication on port 11. a simple check with the software Teraterm confirms our intuition. The second port RX was find with the brut force methode. I simply test to send bulshit on every port. A response was given by the port 10. So pin 11 for **TX** and port 10 for **RX**. for the baudrate simply test the generic convention, 9600 was the right. a More eleagante way can be to deduce it with the frequence of TX signal. 
 
-### What was found by reading the firmware
-
-Reading the firmware source code confirmed that:
-- the password prompt is **not handled by the hardware UART** (`Serial`, 115200 baud, pins D0/D1) — that one only prints a welcome banner once at boot;
-- the actual password communication channel is a **`SoftwareSerial`** instance (`comms`) on pins **D10/D11**, running at **9600 baud**, exchanging plain text (no SimpleSerial framing);
-- pin **D13** is driven HIGH by the firmware right before the password comparison, then LOW right after → this is the usable **trigger** pin for the CW-Nano.
-
-`[TO COMPLETE — important, the teacher demonstrated this in the lab]`: the *practical* method (without reading the source code, "black-box" style) for finding these pins yourself. For example:
-- using a logic analyzer / software such as **PulseView** to observe pin activity at reset or during a connection attempt,
-- a "trial and error" approach pin by pin, using an LED or a second Arduino as a UART interface,
-- calculating/identifying the baud rate from the observed frames.
-
-> If you did this step in the lab but haven't written it up yet: this is exactly the kind of section the teacher expects under "Hardware necessary to conduct your attack, as well as schematics describing their interfacing" (the *Reproducible* grading criterion — 10% of the write-up). Describe your process, even if it was empirical, and add a photo/screenshot if you have one.
-
----
 
 ## 3. Attack Tree
-
+**A completer plus tard**
 ### What is it?
 
 An **attack tree** is a diagram that starts from an **attacker's goal** (the root — here: *retrieve the secret stored in the vault*) and breaks it down into **sub-goals / possible attack paths**, down to concrete, actionable steps. Each branch represents a different way of reaching the goal (or a sub-goal), and can be annotated with:
@@ -101,9 +86,9 @@ All 94 printable ASCII characters were tested as possible first characters, each
 - Standard deviations among the highest-ranked candidates: ranging from ~56 to ~135 µs
 - Character with the highest median response time: `G`
 - However, the difference between the top-ranked candidates was only a few microseconds, **not statistically significant**
-- Repeated measurements gave completely different results each time
+- Repeated measurements gave completely different results each time so the methode was judge inefficacious. 
 
-### Conclusion
+### interpretation
 
 Measuring response time via Python and USB-UART is **not precise enough** to reliably identify the correct character. The next step is to use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine, with the advantage of being less sensitive to electrical noise than the software-side measurement on the PC.
 
