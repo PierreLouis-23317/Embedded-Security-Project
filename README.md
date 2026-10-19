@@ -1,6 +1,6 @@
 # Embedded Security Project — Attacking a Password-Protected Arduino Uno
 
-> ⚠️ **Restructuring note**: this document reuses the content already written in your `README.md`, reorganized according to the requested plan. Sections marked `[TO COMPLETE]` correspond to elements expected by the course wiki (*Attack The Vault!* page) that you haven't written yet. Before submitting, also double-check you have the 5 minimum elements required by the teacher: asset description, attack tree, severity assessment (CVSS), attack(s) description/implementation, proposed countermeasure(s).
+> ⚠️ **Restructuring note**: this document reuses the content already written in your `README.md`, reorganized according to the requested plan. Sections marked `[TO COMPLETE]` correspond to elements expected by the course wiki (*Attack The Vault!* page) that you have not written yet. Before submitting, also double-check that you have the 5 minimum elements required by the teacher: asset description, attack tree, severity assessment (CVSS), attack(s) description/implementation, and proposed countermeasure(s).
 
 ---
 
@@ -11,7 +11,7 @@ This repository contains the work done for the Embedded Security Project, a cour
 The main objective of this project is to analyze and attack an Arduino Uno R3 from a hardware security perspective. The Arduino contains an unknown program protected by a password; the goal is to find vulnerabilities that allow bypassing this protection and retrieving the secret (hash + salt) stored in the firmware.
 
 To achieve this, several attack techniques were explored:
-- **Timing analys** 
+- **Timing analysis**
 - **Voltage Glitching**
 
 This report documents the approach, experiments, results (both positive and negative), and conclusions drawn throughout the project.
@@ -21,22 +21,22 @@ This report documents the approach, experiments, results (both positive and nega
 ## 1. Hardware Overview
 
 - **Arduino Uno R3** — the target, with an **ATmega328P** microcontroller
-- **ChipWhisperer Nano (CW-Nano)** — for synchronized measurements (power analysis) and hardware-triggered captures. This will be our weapon against the arduinno
-- **PC + Python 3.11 environment** this what we need to controll the ChipWhisperer. more recent versions of python (especillay NUmpy) can cause conflict between the packages. I recommende to use the environement I made. 
-- **Hardware component** : such as Resistor and capacitor. it's needed for a better analys when we will remove the **ATmega328P** from the arduinno.
+- **ChipWhisperer Nano (CW-Nano)** — for synchronized measurements (power analysis) and hardware-triggered captures. This will be our weapon against the Arduino.
+- **PC + Python 3.11 environment** — this is what we need to control the ChipWhisperer. More recent versions of Python (especially NumPy) can cause conflicts between the packages. I recommend using the environment I made.
+- **Hardware components** — such as resistors and capacitors. They are needed for a better analysis when we remove the **ATmega328P** from the Arduino.
 
-**inserer images des modules !!!**
+**Insert images of the modules!!!**
 
 
 ## 2. Before Getting Started — Identifying the Right Pins
 
-The USB port don't work. We need to find another way to communicate with the target. 
-Before attacking anything, you need to know **what we are talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution. Of cours the classical Pin TX and RX of the arduinno weren't the pin in use to insert the password an error message say (**a completer**) see image below. 
-With the help of other student the solution was simple. With the use of PulseView software and a little common sense the TX port probably send a welcome message a the begining. we have just need to analyse every signal of the port of arduinno and see where there was a communication (fluation of bits). there was communication on port 11. a simple check with the software Teraterm confirms our intuition. The second port RX was find with the brut force methode. I simply test to send bulshit on every port. A response was given by the port 10. So pin 11 for **TX** and port 10 for **RX**. for the baudrate simply test the generic convention, 9600 was the right. a More eleagante way can be to deduce it with the frequence of TX signal. 
+The USB port does not work. We need to find another way to communicate with the target.
+Before attacking anything, you need to know **what we are talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution. Of course, the classical TX and RX pins of the Arduino were not the pins used to enter the password; an error message says (**to be completed**). See the image below.
+With the help of another student, the solution was simple. Using PulseView software and a little common sense, the TX port probably sends a welcome message at the beginning. We simply needed to analyse every signal from the Arduino's ports and see where there was communication (fluctuations of bits). There was communication on port 11. A simple check with the Tera Term software confirmed our intuition. The second port, RX, was found using a brute-force method. I simply tried sending nonsense to every port. A response was given by port 10. So pin 11 is **TX** and port 10 is **RX**. For the baud rate, I simply tested the standard convention; 9600 was the correct value. A more elegant way would be to deduce it from the frequency of the TX signal.
 
 
 ## 3. Attack Tree
-**A completer plus tard**
+**To be completed later**
 ### What is it?
 
 An **attack tree** is a diagram that starts from an **attacker's goal** (the root — here: *retrieve the secret stored in the vault*) and breaks it down into **sub-goals / possible attack paths**, down to concrete, actionable steps. Each branch represents a different way of reaching the goal (or a sub-goal), and can be annotated with:
@@ -68,7 +68,7 @@ graph TD
     D1 --> H["Countermeasure:<br/>constant-time comparison"]
 ```
 
-`[TO COMPLETE]`: adapt this skeleton to what you actually explored (add/remove branches), then paste it as-is into your `README.md` — no need for an external image, Mermaid renders directly on GitHub.
+`[TO COMPLETE]`: adapt this skeleton to what you actually explored (add/remove branches), then paste it as-is into your `README.md` — no need for an external image; Mermaid renders directly on GitHub.
 
 ---
 
@@ -79,7 +79,7 @@ graph TD
 First approach: exploit the response time of the password verification routine over the UART interface, without any prior knowledge of the password.
 
 All 94 printable ASCII characters were tested as possible first characters, each followed by a fixed-length padding sequence, and each candidate was tested 30 times.
-The python script can be found here (lien pour imming_attack.py)
+The Python script can be found here (link to `timing_attack.py`).
 
 ### Result
 
@@ -87,13 +87,13 @@ The python script can be found here (lien pour imming_attack.py)
 - Standard deviations among the highest-ranked candidates: ranging from ~56 to ~135 µs
 - Character with the highest median response time: `G`
 - However, the difference between the top-ranked candidates was only a few microseconds, **not statistically significant**
-- Repeated measurements gave completely different results each time so the methode was judge inefficacious. 
+- Repeated measurements gave completely different results each time, so the method was judged to be ineffective.
 
-### interpretation
+### Interpretation
 
-Measuring response time via Python and USB-UART is **not precise enough** to reliably identify the correct character. At 9600 baud to send 1 bit is approximately 1ms. In comparaison one clock signal at 16Mhz is 62,5 ns. that to little compare to UART transmission.
+Measuring response time via Python and USB-UART is **not precise enough** to reliably identify the correct character. At 9600 baud, sending 1 bit takes approximately 1 ms. In comparison, one clock cycle at 16 MHz is 62.5 ns. That is much shorter than the UART transmission time.
 
-An improvement is to use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine, with the advantage of being less sensitive to electrical noise than the software-side measurement on the PC. That will be the second attack.
+An improvement is to use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine, with the advantage of being less sensitive to electrical noise than software-side measurements on the PC. That will be the second attack.
 
 ---
 
@@ -102,7 +102,7 @@ An improvement is to use the ChipWhisperer Nano to obtain measurements synchroni
 
 ### Method
 
-**Hardware setup**: the ATmega328P was remove from the Arduino Uno board and placed on a breadboard, to obtain a cleaner current measurement point, isolated from the rest of the circuit (USB-serial chip, voltage regulator, LEDs). All the process is describe in this reportory (**mettre le lien vers le github du DLH**)
+**Hardware setup**: the ATmega328P was removed from the Arduino Uno board and placed on a breadboard to obtain a cleaner current measurement point, isolated from the rest of the circuit (USB-serial chip, voltage regulator, LEDs). The whole process is described in this repository (**add the link to the DLH GitHub repository**).
 
 
 
@@ -110,7 +110,7 @@ An improvement is to use the ChipWhisperer Nano to obtain measurements synchroni
 
 Even with communication working, `scope.capture()` consistently timed out (`Timeout in cwnano capture()`), regardless of whether the UART exchange itself succeeded.
 
-**Root cause identified**: `scope.capture()` waits for a hardware trigger edge on `TIO4`, not for UART activity — sending bytes over UART alone does not trigger a capture. The firmware does drive pin 13 (D13) HIGH before the password comparison and LOW right after (a usable trigger signal) — but this pin was **not yet physically wired** to TIO4 (pin 16 of the CW-Nano's 20-pin connector) at the time of this session. No trigger edge ever reached the capture device, so a timeout means no trigger edge was detected — not that the UART response was late. The notebook raises an actionable error in this case rather than attempting to plot an empty trace.
+**Root cause identified**: `scope.capture()` waits for a hardware trigger edge on `TIO4`, not for UART activity — sending bytes over UART alone does not trigger a capture. The firmware drives pin 13 (D13) HIGH before the password comparison and LOW right after (a usable trigger signal), but this pin was **not yet physically wired** to TIO4 (pin 16 of the CW-Nano's 20-pin connector) at the time of this session. No trigger edge ever reached the capture device, so a timeout means that no trigger edge was detected — not that the UART response was late. The notebook raises an actionable error in this case rather than attempting to plot an empty trace.
 
 No trace could be recorded during this session; no secret has been recovered via this method yet.
 
@@ -125,7 +125,7 @@ The targeted vulnerability (early-exit password comparison, see Section 6) is st
 
 ### Expected results
 
-Once the trigger is correctly wired, each capture window should correspond exactly to the time the firmware spends with pin 13 driven HIGH, i.e. the duration of `early_exit_compare()` (and, on a correct guess, the subsequent hashing routine as well). This matches the course's SPA methodology (see *SPA on RSA*, ES5T-T1/03): identify recurring patterns in the trace and map them back to the algorithm's branches.
+Once the trigger is correctly wired, each capture window should correspond exactly to the time the firmware spends with pin 13 driven HIGH, i.e. the duration of `early_exit_compare()` (and, for a correct guess, the subsequent hashing routine as well). This matches the course's SPA methodology (see *SPA on RSA*, ES5T-T1/03): identify recurring patterns in the trace and map them back to the algorithm's branches.
 
 **What a trace should look like**
 - A short, mostly flat/low-activity region for most of the capture if the attempt fails on an early character, since `early_exit_compare()` returns almost immediately.
@@ -134,68 +134,68 @@ Once the trigger is correctly wired, each capture window should correspond exact
 
 **What we are looking for, concretely**
 - A usable metric is the **duration of the active/high-activity window** (e.g. number of samples above a baseline threshold, or simply the time between trigger high and trigger low if captured separately). This duration should increase monotonically as more leading characters of a guess match the real password — same principle as the `t_bad < t_correct` relationship shown for the PIN-pad example in the course, and the `Q`/`L` pattern mapping used for the RSA SPA example.
-- For a fixed, fully-wrong candidate character, repeated captures should be highly similar to each other (low variance) — this is the "this part of the trace stays highly similar" baseline mentioned in the course notes, and is a good sanity check before trusting the metric.
+- For a fixed, fully wrong candidate character, repeated captures should be highly similar to each other (low variance) — this is the "this part of the trace stays highly similar" baseline mentioned in the course notes, and is a good sanity check before trusting the metric.
 
 **Expected final deliverable**
 - The recovered password, confirmed by sending it and observing `>> ACCESS GRANTED` instead of `>> ACCESS DENIED`.
 - The hash and salt printed by `protected_section()` in response to the correct password, as required by the project's deliverables.
 - A plot (saved from the Jupyter notebook) showing at least: one trace for a fully incorrect attempt, one trace for a partially correct attempt (1–2 leading characters correct), and one trace for the fully correct password — illustrating the growing active-region duration described above. This is the key piece of evidence for the "vulnerability correctly identified, with proof" criterion in the write-up grading grid.
 
-`[TO COMPLETE]`: once the trigger is wired and traces obtained, fill in this section with your actual plots and the recovered password/hash/salt.
+`[TO COMPLETE]`: once the trigger is wired and traces have been obtained, fill in this section with your actual plots and the recovered password/hash/salt.
 
 
-## 5. Attack #2 — voltage glitch
+## 5. Attack #2 — Voltage Glitching
 
 ### Method
 
-The objective of a voltage glitching attack is to intentionally disturb the microcontroller's power supply for a very short period in order to skip an instruction. 
+The objective of a voltage glitching attack is to intentionally disturb the microcontroller's power supply for a very short period in order to skip an instruction.
 
-In your Arduino  the idea is to introduce a fault while the microcontroller is verifying the password, potentially causing it to accept an incorrect password.
+With the Arduino, the idea is to introduce a fault while the microcontroller is verifying the password, potentially causing it to accept an incorrect password.
 
 
 ### CVSS v4.0 Assessment
 
-(juste mettre image ?)
+(just add an image?)
 ---
 
 ## 6. The Exploited Vulnerability — and Countermeasure Ideas
 
-With the help of source code we can implemented wolution with zero cost in order to make our emebeb platform more robust. 
-All the correction are documented in the code(faire une version corrigé et non corrigé)
+With the help of the source code, we can implement solutions at zero cost in order to make our embedded platform more robust.
+All the corrections are documented in the code (make a patched and an unpatched version).
 
 ### The vulnerability: early exit
 
 The program compares the password character by character and stops as soon as one character is incorrect. The more correct characters are entered, the more instructions the CPU executes — creating a measurable difference in **execution time** and **power consumption**, exploitable via timing attack or power analysis to progressively recover the password.
 
-#### countermeasures
+#### Countermeasures
 
-1. **Constant-time comparison**: instead of stopping at the first incorrect character, the program always checks the entire password and only returns the result at the end. Removes the information leak tied to execution duration. 
-2. **Random delay before the response**: makes timing attacks harder, but **does not prevent** analysis of the CPU's power consumption. However we can add random computation when we are making the program to conter this.
-3. **add a number of tentative**: add a number of maximum tentative before locking teh platform fior a while. 
+1. **Constant-time comparison**: instead of stopping at the first incorrect character, the program always checks the entire password and only returns the result at the end. This removes the information leak tied to execution duration.
+2. **Random delay before the response**: makes timing attacks harder, but **does not prevent** analysis of the CPU's power consumption. However, we can add random computations to the program to counter this.
+3. **Limit the number of attempts**: add a maximum number of attempts before locking the platform for a while.
 
 ### The vulnerability: voltage glitch
 
 The program does not implement any countermeasure against fault injection. A voltage glitch can cause the microcontroller to skip instructions, potentially bypassing the password check entirely.
 
-#### countermeasures
+#### Countermeasures
 
 1. **Brown-Out Detection**: Implement a brown-out detection circuit to reset the microcontroller when the power supply drops below a certain threshold.
-2. **Voltage Regulator**: Use a stable voltage regulator to ensure a consistent power supply with decouplage capacitors to filter out noise and spikes.
-3. **redundance security**: Implement redundant systems to ensure that if one component fails, another can take over without compromising the security of the system. Like flag. 
+2. **Voltage Regulator**: Use a stable voltage regulator to ensure a consistent power supply, with decoupling capacitors to filter out noise and spikes.
+3. **Redundant security**: Implement redundant systems to ensure that if one component fails, another can take over without compromising the security of the system, for example by using a flag.
 
-### Other glitch 
-there are many différente attack I  don't implament but I can mention them and there contermeasure.
+### Other attacks
+There are many different attacks that I did not implement, but I can mention them and their countermeasures.
 
 #### Firmware extraction 
 The password and secret are hardcoded in plaintext within the firmware. If an attacker manages to extract the ATmega328P's Flash memory, these sensitive values could be recovered through binary analysis.
 
-Countermeasures: Enable the microcontroller's lock bits to restrict firmware readout and avoid storing sensitive credentials in plaintext.
+**Countermeasures**: Enable the microcontroller's lock bits to restrict firmware readout and avoid storing sensitive credentials in plaintext.
 
 #### Memory Exhaustion
 
 The readLine() function uses a dynamically allocated String without limiting the input length. Since the ATmega328P has only 2 KB of SRAM, sending excessively long serial messages could exhaust available memory, cause instability, or lead to a Denial-of-Service (DoS).
 
-Countermeasures: Replace dynamic strings with a fixed-size buffer, enforce a maximum input length, and implement a reception timeout.
+**Countermeasures**: Replace dynamic strings with a fixed-size buffer, enforce a maximum input length, and implement a reception timeout.
 
 
 ## Conclusion
