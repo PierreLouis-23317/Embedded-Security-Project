@@ -48,25 +48,74 @@ It's a threat-modeling tool: it shows that you considered several possible paths
 
 ### Proposal for this project
 
-Here's a skeleton based on what you've identified so far (GitHub natively renders Mermaid diagrams in `.md` files):
 
-```mermaid
-graph TD
-    A["Goal: retrieve the secret<br/>(hash + salt) from the vault"]
-    A --> B["Bypass the password check"]
-    A --> C["Extract the secret directly<br/>from memory/firmware"]
 
-    B --> D["Timing Attack via UART"]
-    B --> E["Power Analysis (SPA)<br/>with ChipWhisperer Nano"]
-    B --> F["[Fault injection / glitching<br/>— to explore?]"]
+flowchart LR
+    subgraph ATT["Attacker"]
+        PA["Physical access"]
+    end
 
-    D --> D1["Vulnerability: character-by-character<br/>comparison with early exit<br/>(early-exit)"]
-    E --> D1
+    subgraph IDENT["Identification"]
+        direction TB
+        UART["Analyze UART communication"]
+        TRIG["Identify trigger signal"]
+        WINDOW["Fault injection point"]
+        CONFIG["Characterize target power supply"]
 
-    C --> G["[.elf reading / reverse engineering<br/>— explored as an appendix?]"]
+        UART --> WINDOW
+        TRIG --> WINDOW
+    end
 
-    D1 --> H["Countermeasure:<br/>constant-time comparison"]
-```
+    subgraph EXP["Exploitation"]
+        direction TB
+        SETUP["Configure ChipWhisperer"]
+        AND1{{"AND"}}
+        INJECT["Inject voltage fault"]
+        RESPONSE["Observe target behavior"]
+        FAULT["Fault affecting authentication"]
+
+        SETUP --> AND1
+        AND1 --> INJECT
+        INJECT --> RESPONSE
+        RESPONSE --> FAULT
+    end
+
+    subgraph GOALS["Goals"]
+        direction TB
+        BYPASS["Bypass password verification"]
+        SECRET["Access protected secret"]
+        BYPASS --> SECRET
+    end
+
+    PA --> UART
+    PA --> TRIG
+    PA --> CONFIG
+    PA --> SETUP
+
+    WINDOW --> AND1
+    CONFIG --> SETUP
+    FAULT --> BYPASS
+
+    CM1["Brown-out detection"]
+    CM2["Redundant password verification"]
+    CM1 -.-> INJECT
+    CM2 -.-> BYPASS
+
+    classDef action fill:#ffffff,stroke:#222,color:#111
+    classDef asset fill:#ffffff,stroke:#222,stroke-dasharray:4 3,color:#111
+    classDef countermeasure fill:#fff0f0,stroke:#b91c1c,stroke-dasharray:3 3,color:#111
+    classDef gate fill:#ffffff,stroke:#222,color:#111
+
+    class UART,TRIG,CONFIG,SETUP,INJECT,RESPONSE action
+    class PA,WINDOW,FAULT,BYPASS,SECRET asset
+    class CM1,CM2 countermeasure
+    class AND1 gate
+
+    style ATT fill:#edf3ff,stroke:#6b91ce,stroke-dasharray:3 3
+    style IDENT fill:#fff4df,stroke:#e0a23e,stroke-dasharray:3 3
+    style EXP fill:#e9f6e9,stroke:#61a46c,stroke-dasharray:3 3
+    style GOALS fill:#ffe9e9,stroke:#df7777,stroke-dasharray:3 3
+
 
 `[TO COMPLETE]`: adapt this skeleton to what you actually explored (add/remove branches), then paste it as-is into your `README.md` — no need for an external image; Mermaid renders directly on GitHub.
 
