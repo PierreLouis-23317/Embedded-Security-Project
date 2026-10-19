@@ -97,27 +97,14 @@ An improvement is to use the ChipWhisperer Nano to obtain measurements synchroni
 
 ---
 
-## 5. Attack #2 — Power Analysis (SPA) with the ChipWhisperer Nano
+## 5. Attack #1.2 — Power Analysis (SPA) with the ChipWhisperer Nano
 
 
 ### Method
 
-**Hardware setup**: the ATmega328P was desoldered from the Arduino Uno board and placed on a breadboard, to obtain a cleaner current measurement point, isolated from the rest of the circuit (USB-serial chip, voltage regulator, LEDs).
+**Hardware setup**: the ATmega328P was remove from the Arduino Uno board and placed on a breadboard, to obtain a cleaner current measurement point, isolated from the rest of the circuit (USB-serial chip, voltage regulator, LEDs). All the process is describe in this reportory (**mettre le lien vers le github du DLH**)
 
-The support signals needed for the chip to run were wired back to the now-empty DIP-28 socket on the Arduino (reusing the board's oscillator, reset circuitry, and power supply):
-- RESET (pin 1), XTAL1/XTAL2 (pins 9/10), VCC/AVCC (pins 7/20), GND (pins 8/22)
-- D10 (pin 16, RX of the `comms` channel) and D11 (pin 17, TX) wired directly to the CW-Nano
 
-**CW-Nano wiring (20-pin connector)**:
-
-| CW-Nano pin | Function | Connected to |
-|---|---|---|
-| 2 | GND | common ground |
-| 8 | VREF | chip VCC (5V) |
-| 10 | TIO1 (RX) | ATmega pin 17 (D11, firmware TX) |
-| 12 | TIO2 (TX) | ATmega pin 16 (D10, firmware RX) |
-
-**Communication issue and fix**: initial capture attempts used `cw.target(scope, cw.targets.SimpleSerial2)` with `target.write()` / `target.read()`, which returned empty responses. These methods encode/decode the structured SimpleSerial protocol (start byte, command character, checksum), which this custom firmware doesn't implement at all. Switching to the raw serial accessor (`target.ser.write()` / `target.ser.read()`) fixed communication at the protocol level — consistent with the *Troubleshooting* section of the course wiki.
 
 ### Result
 
@@ -155,6 +142,16 @@ Once the trigger is correctly wired, each capture window should correspond exact
 - A plot (saved from the Jupyter notebook) showing at least: one trace for a fully incorrect attempt, one trace for a partially correct attempt (1–2 leading characters correct), and one trace for the fully correct password — illustrating the growing active-region duration described above. This is the key piece of evidence for the "vulnerability correctly identified, with proof" criterion in the write-up grading grid.
 
 `[TO COMPLETE]`: once the trigger is wired and traces obtained, fill in this section with your actual plots and the recovered password/hash/salt.
+
+
+## 5. Attack #2 — voltage glitch
+
+### Method
+
+The objective of a voltage glitching attack is to intentionally disturb the microcontroller's power supply for a very short period in order to skip an instruction. 
+
+In your Arduino  the idea is to introduce a fault while the microcontroller is verifying the password, potentially causing it to accept an incorrect password.
+
 
 ---
 
