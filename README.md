@@ -79,6 +79,7 @@ graph TD
 First approach: exploit the response time of the password verification routine over the UART interface, without any prior knowledge of the password.
 
 All 94 printable ASCII characters were tested as possible first characters, each followed by a fixed-length padding sequence, and each candidate was tested 30 times.
+The python script can be found here (lien pour imming_attack.py)
 
 ### Result
 
@@ -90,13 +91,14 @@ All 94 printable ASCII characters were tested as possible first characters, each
 
 ### interpretation
 
-Measuring response time via Python and USB-UART is **not precise enough** to reliably identify the correct character. The next step is to use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine, with the advantage of being less sensitive to electrical noise than the software-side measurement on the PC.
+Measuring response time via Python and USB-UART is **not precise enough** to reliably identify the correct character. At 9600 baud to send 1 bit is approximately 1ms. In comparaison one clock signal at 16Mhz is 62,5 ns. that to little compare to UART transmission.
+
+An improvement is to use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine, with the advantage of being less sensitive to electrical noise than the software-side measurement on the PC. That will be the second attack.
 
 ---
 
 ## 5. Attack #2 — Power Analysis (SPA) with the ChipWhisperer Nano
 
-> ⚠️ **Status: in progress / not yet successful at the time of writing.** This section documents a negative result — that's normal and still counts in a write-up (see grading grid: it's about showing the process, not just a success).
 
 ### Method
 
