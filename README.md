@@ -49,6 +49,7 @@ It's a threat-modeling tool: it shows that you considered several possible paths
 ### Proposal for this project
 
 
+```mermaid
 
 flowchart LR
     subgraph ATT["Attacker"]
@@ -116,8 +117,7 @@ flowchart LR
     style EXP fill:#e9f6e9,stroke:#61a46c,stroke-dasharray:3 3
     style GOALS fill:#ffe9e9,stroke:#df7777,stroke-dasharray:3 3
 
-
-`[TO COMPLETE]`: adapt this skeleton to what you actually explored (add/remove branches), then paste it as-is into your `README.md` — no need for an external image; Mermaid renders directly on GitHub.
+```
 
 ---
 
