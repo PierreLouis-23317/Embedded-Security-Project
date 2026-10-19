@@ -157,19 +157,17 @@ In your Arduino  the idea is to introduce a fault while the microcontroller is v
 
 ## 6. The Exploited Vulnerability — and Countermeasure Ideas
 
+With the help of source code we can implemented wolution with zero cost in order to make our emebeb platform more robust. 
+All the correction are documented in the code(faire une version corrigé et non corrigé)
+
 ### The vulnerability: early exit
 
 The program compares the password character by character and stops as soon as one character is incorrect. The more correct characters are entered, the more instructions the CPU executes — creating a measurable difference in **execution time** and **power consumption**, exploitable via timing attack or power analysis to progressively recover the password.
 
-### Proposed countermeasures
+### countermeasures
 
-1. **Constant-time comparison**: instead of stopping at the first incorrect character, the program always checks the entire password and only returns the result at the end. Removes the information leak tied to execution duration.
-2. **Random delay before the response**: makes timing attacks harder, but **does not prevent** analysis of the CPU's power consumption (the leak is still present in the power trace — only the *network-side* timing is obscured).
-3. `[TO COMPLETE / optional]` other avenues to consider: masking operations (making power consumption independent of the processed value), adding hardware noise (filtered power supply, capacitors), anomaly detection (watchdog / brown-out detection) to react to an analysis attempt.
-
-`[TO COMPLETE — grading criterion "The proposed counter-measure would indeed void the exploit"]`: for each chosen countermeasure, explain **why** it concretely blocks *your* attack (not just in theory), and if possible, demonstrate it (re-implementation + renewed attack attempt, see course planning sessions 4–5).
-
----
+1. **Constant-time comparison**: instead of stopping at the first incorrect character, the program always checks the entire password and only returns the result at the end. Removes the information leak tied to execution duration. 
+2. **Random delay before the response**: makes timing attacks harder, but **does not prevent** analysis of the CPU's power consumption. However we can add random computation when we are making the program to conter this.
 
 ## Conclusion
 
