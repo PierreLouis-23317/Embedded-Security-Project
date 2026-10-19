@@ -11,9 +11,8 @@ This repository contains the work done for the Embedded Security Project, a cour
 The main objective of this project is to analyze and attack an Arduino Uno R3 from a hardware security perspective. The Arduino contains an unknown program protected by a password; the goal is to find vulnerabilities that allow bypassing this protection and retrieving the secret (hash + salt) stored in the firmware.
 
 To achieve this, several attack techniques were explored:
-- **Timing Attack** via the UART interface,
-- **Power Analysis (SPA)** using the ChipWhisperer Nano,
-- *(possibly, time permitting) Voltage Glitching.*
+- **Timing analys** 
+- **Voltage Glitching**
 
 This report documents the approach, experiments, results (both positive and negative), and conclusions drawn throughout the project.
 
@@ -22,21 +21,18 @@ This report documents the approach, experiments, results (both positive and nega
 ## 1. Hardware Overview
 
 - **Arduino Uno R3** — the target, with an **ATmega328P** microcontroller
-- **ChipWhisperer Nano (CW-Nano)** — for synchronized measurements (power analysis) and hardware-triggered captures
-- **PC + Python 3.11 environment** with the `chipwhisperer` library
-  > Technical note: Python 3.14 installs an experimental NumPy build (MinGW-W64) on Windows, which can crash while importing `chipwhisperer`. Python 3.11 is therefore used.
-- `avrdude` to flash the firmware onto the target:
-  ```
-  avrdude -v -patmega328p -carduino -P/dev/ttyACM0 -b115200 -Uflash:w:firmware.elf
-  ```
+- **ChipWhisperer Nano (CW-Nano)** — for synchronized measurements (power analysis) and hardware-triggered captures. This will be our weapon against the arduinno
+- **PC + Python 3.11 environment** this what we need to controll the ChipWhisperer. more recent versions of python (especillay NUmpy) can cause conflict between the packages. I recommende to use the environement I made. 
+- **Hardware component** : such as Resistor and capacitor. it's needed for a better analys when we will remove the **ATmega328P** from the arduinno.
 
-`[TO COMPLETE]`: full list of physical hardware used for the power analysis setup (breadboard, resistors/capacitors if used, cables, power supply, etc.) — see Section 5.
+**inserer images des modules !!!**
 
----
 
 ## 2. Before Getting Started — Identifying the Right Pins
 
-Before attacking anything, you need to know **what you're talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution.
+The USB port don't work. We need to find another way to communicate with the target. 
+Before attacking anything, you need to know **what we are talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution. Of cours the classical Pin TX and RX of the arduinno weren't the pin in use to insert the password an error message say (**a completer**) see image below. 
+With the help of other student the solution was simple. With the use of PulseView software and a little common sense the TX port probably send a welcome message a the begining. we have just need to analyse every signal of the port of arduinno and see where there was a communication (fluation of bits). there was communication on port 11. a simple check with the software Teraterm confirms our intuition. The second port RX was find with the brut force methode. I simply test to send bulshit on every port. A response was given by the port 10. So pin 11 for **TX** and port 10 for **RX**. for the baudrate simply test the generic convention, 9600 was the right. a More eleagante way can be to deduce it with the frequence of TX signal. 
 
 ### What was found by reading the firmware
 
