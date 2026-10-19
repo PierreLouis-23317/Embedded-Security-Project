@@ -58,22 +58,28 @@ String readLine(Stream &s) {
   return str;
 }
 
-// Early-exit, character-by-character comparison
+// PATCH (TIMING ATTACK): Compare every character without returning on the first mismatch.
 bool early_exit_compare(const char *attempt) {
-  size_t pass_len = sizeof(PASSWORD) - 1; // exclude terminating NUL
+  const size_t pass_len = sizeof(PASSWORD) - 1;
+  uint8_t mismatch = 0;
   for (size_t i = 0; i < pass_len; ++i) {
-    /*Serial.print("Character from password: '");
-    Serial.print(PASSWORD[i]);
-    Serial.print("', attempt: '");/home/dlh/ECAM/Cours/5MEO Embedded Security/Course/00/ES5T_00/resource/ES5_CM0_code_naif.ino
-    Serial.print(attempt[i]);
-    Serial.println("'");*/
-    // if attempt ended early or characters differ -> fail immediately
-    if (attempt[i] == '\0') return false;
-    if (attempt[i] != PASSWORD[i]) return false;
-    //delayMicroseconds(50);
+    mismatch |= (uint8_t)(attempt[i] ^ PASSWORD[i]);
   }
-  // ensure attempt has no extra characters
-  return true;
+  // PATCH (TIMING ATTACK): Reject shorter or longer inputs without a secret-dependent early exit.
+  mismatch |= (uint8_t)(strlen(attempt) != pass_len);
+  return mismatch == 0;
+}
+
+// PATCH (VOLTAGE GLITCHING): Independently repeat the check in reverse order.
+// A single corrupted comparison result should not be enough to grant access.
+bool reverse_compare(const char *attempt) {
+  const size_t pass_len = sizeof(PASSWORD) - 1;
+  uint8_t mismatch = 0;
+  for (size_t i = pass_len; i > 0; --i) {
+    mismatch |= (uint8_t)(attempt[i - 1] ^ PASSWORD[i - 1]);
+  }
+  mismatch |= (uint8_t)(strlen(attempt) != pass_len);
+  return mismatch == 0;
 }
 
 void protected_section(Stream &out) {
@@ -113,7 +119,11 @@ void loop() {
     attempt.toCharArray(attempt_c, sizeof(attempt_c));
 
     digitalWrite(13, HIGH);
-    if (early_exit_compare(attempt_c)) {
+    // PATCH (VOLTAGE GLITCHING): Require two independent checks before access.
+    // This increases fault tolerance but does not guarantee resistance to glitching.
+    bool first_check = early_exit_compare(attempt_c);
+    bool second_check = reverse_compare(attempt_c);
+    if (first_check && second_check) {
       protected_section(comms);
     } else {
       comms.println(">> ACCESS DENIED");
