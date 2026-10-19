@@ -153,6 +153,9 @@ The objective of a voltage glitching attack is to intentionally disturb the micr
 In your Arduino  the idea is to introduce a fault while the microcontroller is verifying the password, potentially causing it to accept an incorrect password.
 
 
+### CVSS v4.0 Assessment
+
+(juste mettre image ?)
 ---
 
 ## 6. The Exploited Vulnerability — and Countermeasure Ideas
