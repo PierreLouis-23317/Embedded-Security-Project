@@ -36,17 +36,7 @@ With the help of another student, the solution was simple. Using PulseView softw
 
 
 ## 3. Attack Tree
-**To be completed later**
-### What is it?
 
-An **attack tree** is a diagram that starts from an **attacker's goal** (the root — here: *retrieve the secret stored in the vault*) and breaks it down into **sub-goals / possible attack paths**, down to concrete, actionable steps. Each branch represents a different way of reaching the goal (or a sub-goal), and can be annotated with:
-- the **asset** targeted (what's being protected — here, the password / the hash+salt),
-- the **vulnerabilities** exploited at each step,
-- the **countermeasures** that would block each branch.
-
-It's a threat-modeling tool: it shows that you considered several possible paths (not just the one you followed), and explicitly links attack ↔ vulnerability ↔ countermeasure (this is graded as a separate criterion in the grid: *Attack tree is complete* — 10%).
-
-### Proposal for this project
 
 
 ```mermaid
