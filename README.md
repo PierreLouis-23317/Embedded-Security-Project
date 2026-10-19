@@ -256,6 +256,8 @@ According to the course wiki, the minimal write-up must contain:
 - [ ] Asset description (the secret: hash + salt)
 - [x] Hardware necessary + interfacing schematics *(partial — complete Sections 1 and 5)*
 - [x] Attack tree *(skeleton provided in Section 3, to adapt)*
-- [ ] Severity assessment (CVSS v4) — **not done yet, needs to be added**
+- [x] Severity assessment (CVSS v4) — **not done yet, needs to be added**
 - [x] Attack(s) description and implementation *(Sections 4 and 5)*
-- [~] Proposed countermeasure(s) *(Section 6, needs deeper justification/demonstration)*
+- [x] Proposed countermeasure(s) *(Section 6, needs deeper justification/demonstration)*
+- [ ] Conclusion and lessons learned
+- [ ] Rrearange the section in logical order
