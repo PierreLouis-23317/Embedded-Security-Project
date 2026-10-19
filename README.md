@@ -164,21 +164,39 @@ All the correction are documented in the code(faire une version corrigé et non 
 
 The program compares the password character by character and stops as soon as one character is incorrect. The more correct characters are entered, the more instructions the CPU executes — creating a measurable difference in **execution time** and **power consumption**, exploitable via timing attack or power analysis to progressively recover the password.
 
-### countermeasures
+#### countermeasures
 
 1. **Constant-time comparison**: instead of stopping at the first incorrect character, the program always checks the entire password and only returns the result at the end. Removes the information leak tied to execution duration. 
 2. **Random delay before the response**: makes timing attacks harder, but **does not prevent** analysis of the CPU's power consumption. However we can add random computation when we are making the program to conter this.
+3. **add a number of tentative**: add a number of maximum tentative before locking teh platform fior a while. 
+
+### The vulnerability: voltage glitch
+
+The program does not implement any countermeasure against fault injection. A voltage glitch can cause the microcontroller to skip instructions, potentially bypassing the password check entirely.
+
+#### countermeasures
+
+1. **Brown-Out Detection**: Implement a brown-out detection circuit to reset the microcontroller when the power supply drops below a certain threshold.
+2. **Voltage Regulator**: Use a stable voltage regulator to ensure a consistent power supply with decouplage capacitors to filter out noise and spikes.
+3. **redundance security**: Implement redundant systems to ensure that if one component fails, another can take over without compromising the security of the system. Like flag. 
+
+### Other glitch 
+there are many différente attack I  don't implament but I can mention them and there contermeasure.
+
+#### Firmware extraction 
+The password and secret are hardcoded in plaintext within the firmware. If an attacker manages to extract the ATmega328P's Flash memory, these sensitive values could be recovered through binary analysis.
+
+Countermeasures: Enable the microcontroller's lock bits to restrict firmware readout and avoid storing sensitive credentials in plaintext.
+
+#### Memory Exhaustion
+
+The readLine() function uses a dynamically allocated String without limiting the input length. Since the ATmega328P has only 2 KB of SRAM, sending excessively long serial messages could exhaust available memory, cause instability, or lead to a Denial-of-Service (DoS).
+
+Countermeasures: Replace dynamic strings with a fixed-size buffer, enforce a maximum input length, and implement a reception timeout.
+
 
 ## Conclusion
 
-`[TO COMPLETE]` — to be written once Attack #2 is successful. Points to cover:
-- Summary of both approaches attempted and their respective results (controlled failure for timing, in progress for power analysis)
-- Was the secret recovered? If so, how (hash + salt obtained); if not, where things currently stand
-- Limitations encountered (software precision, trigger wiring, etc.)
-- What the project revealed about the hardware security of a low-end microcontroller
-- Link to the severity assessment (CVSS) and the attack tree completed above
-
----
 
 ## Checklist Before Submitting
 
