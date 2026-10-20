@@ -124,6 +124,7 @@ Voltage glitching is a fault injection technique that consists of briefly distur
 By introducing a short voltage drop at a specific moment, we can potentially cause the CPU to execute instructions incorrectly, skip an instruction, or modify the expected program behaviour.
 
 In our case, the objective is to inject a voltage glitch while the ATmega328P is checking the password, potentially bypassing the authentication mechanism and executing the protected section of the program.
+![Voltage glitching representation](https://ars.els-cdn.com/content/image/1-s2.0-S0141933126000591-gr1.jpg)
 
 ### Method
 
@@ -351,8 +352,7 @@ According to the course wiki, the minimal write-up must contain:
 - [ ] Asset description (the secret: hash + salt)
 - [x] Hardware necessary + interfacing schematics *(partial — complete Sections 1 and 5)*
 - [x] Attack tree *(skeleton provided in Section 3, to adapt)*
-- [x] Severity assessment (CVSS v4) — **not done yet, needs to be added**
+- [ ] Severity assessment (CVSS v4) — **not done yet, needs to be added**
 - [x] Attack(s) description and implementation *(Sections 4 and 5)*
 - [x] Proposed countermeasure(s) *(Section 6, needs deeper justification/demonstration)*
 - [ ] Conclusion and lessons learned
-- [ ] Rrearange the section in logical order
