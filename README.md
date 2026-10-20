@@ -21,11 +21,12 @@ This report documents the approach, experiments, results (both positive and nega
 ## 1. Hardware Overview
 
 - **Arduino Uno R3** — the target, with an **ATmega328P** microcontroller
+![arduino used](images/Arduino.jpg)
 - **ChipWhisperer Nano (CW-Nano)** — for synchronized measurements (power analysis) and hardware-triggered captures. This will be our weapon against the Arduino.
+![ChipWhisperer Nano](images/cipher.png)
 - **PC + Python 3.11 environment** — this is what we need to control the ChipWhisperer. More recent versions of Python (especially NumPy) can cause conflicts between the packages. I recommend using the environment I made.
-- **Hardware components** — such as resistors and capacitors. They are needed for a better analysis when we remove the **ATmega328P** from the Arduino.
+- **Hardware components** — such as resistors and capacitors. They are needed for a better analysis when we remove the **ATmega328P** from the Arduino and make a RC filter.
 
-**Insert images of the modules!!!**
 
 
 ## 2. Before Getting Started — Identifying the Right Pins
