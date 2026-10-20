@@ -175,7 +175,6 @@ when a syncronisation was established, we would send wrong passwords and capture
 **to finish**
 
 ---
----
 
 ## 5. Attack #2 — Analysis
 
