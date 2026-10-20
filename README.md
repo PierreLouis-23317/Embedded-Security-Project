@@ -1,6 +1,5 @@
 # Embedded Security Project — Attacking a Password-Protected Arduino Uno
 
-> ⚠️ **Restructuring note**: this document reuses the content already written in your `README.md`, reorganized according to the requested plan. Sections marked `[TO COMPLETE]` correspond to elements expected by the course wiki (*Attack The Vault!* page) that you have not written yet. Before submitting, also double-check that you have the 5 minimum elements required by the teacher: asset description, attack tree, severity assessment (CVSS), attack(s) description/implementation, and proposed countermeasure(s).
 
 ---
 
@@ -33,7 +32,7 @@ This report documents the approach, experiments, results (both positive and nega
 
 The USB port does not work. We need to find another way to communicate with the target.
 Before attacking anything, you need to know **what we are talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution. Of course, the classical TX and RX pins of the Arduino were not the pins used to enter the password; an error message says (**to be completed**). See the image below.
-With the help of another student, the solution was simple. Using PulseView software and a little common sense, the TX port probably sends a welcome message at the beginning. We simply needed to analyse every signal from the Arduino's ports and see where there was communication (fluctuations of bits). There was communication on port 11. A simple check with the Tera Term software confirmed our intuition. The second port, RX, was found using a brute-force method. I simply tried sending nonsense to every port. A response was given by port 10. So pin 11 is **TX** and port 10 is **RX**. For the baud rate, I simply tested the standard convention; 9600 was the correct value. A more elegant way would be to deduce it from the frequency of the TX signal.
+With the help of another student, the solution was simple. Using PulseView software and a little common sense, the TX port probably sends a welcome message at the beginning. We simply needed to analyse every signal from the Arduino's ports and see where there was communication (fluctuations of bits). There was communication on port 11. A simple check with the Tera Term software confirmed our intuition. The second port, RX, was found using a brute-force method. I simply tried sending nonsense to every port. A response was given by port 10. So pin 11 is **TX** and port 10 is **RX**. For the baud rate, I simply tested some standard conventions; 9600 was the correct value. A more elegant way would be to deduce it from the frequency of the TX signal.
 
 
 ## 3. Attack Tree
@@ -111,8 +110,6 @@ flowchart LR
 ```
 
 ---
-
-## 4. Attack #1 — Voltage Glitching
 
 ## 4. Attack #1 — Voltage Glitching
 
