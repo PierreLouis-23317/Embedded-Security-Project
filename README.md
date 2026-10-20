@@ -20,9 +20,9 @@ This report documents the approach, experiments, results (both positive and nega
 ## 1. Hardware Overview
 
 - **Arduino Uno R3** — the target, with an **ATmega328P** microcontroller
-![arduino used](images/Arduino.jpg)
+![arduino used](image/Arduino.jpg)
 - **ChipWhisperer Nano (CW-Nano)** — for synchronized measurements (power analysis) and hardware-triggered captures. This will be our weapon against the Arduino.
-![ChipWhisperer Nano](images/cipher.png)
+![ChipWhisperer Nano](image/cipher.png)
 - **PC + Python 3.11 environment** — this is what we need to control the ChipWhisperer. More recent versions of Python (especially NumPy) can cause conflicts between the packages. I recommend using the environment I made.
 - **Hardware components** — such as resistors and capacitors. They are needed for a better analysis when we remove the **ATmega328P** from the Arduino and make a RC filter.
 
@@ -301,7 +301,7 @@ By comparing multiple synchronized measurements, we could attempt to identify wh
 However, because the artificial delay in the source code was disabled, these differences might still have been too small for reliable detection, even with the ChipWhisperer.
 
 Successful synchronization would therefore have been a necessary condition for the experiment, but not a guarantee of password recovery.
----
+***
 
 ## 6. The Exploited Vulnerability — and Countermeasure Ideas
 
@@ -345,6 +345,7 @@ The readLine() function uses a dynamically allocated String without limiting the
 
 ## Conclusion
 
+unfortunately I was not able to implement the attacks due to a synchronization problem with the ChipWhisperer Nano. However 
 
 ## Checklist Before Submitting
 
