@@ -345,7 +345,9 @@ The readLine() function uses a dynamically allocated String without limiting the
 
 ## Conclusion
 
-unfortunately I was not able to implement the attacks due to a synchronization problem with the ChipWhisperer Nano. However 
+unfortunately I was not able to implement the attacks due to a synchronization problem with the ChipWhisperer Nano.
+Even if i'm no in 5MEO i didn't learn the basic rule of enginering make it/ start simple. 
+If the project was to be done again, I would have started with a simple project with SPA and start more time in starting ...
 
 ## Checklist Before Submitting
 
