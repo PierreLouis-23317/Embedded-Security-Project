@@ -175,79 +175,133 @@ when a syncronisation was established, we would send wrong passwords and capture
 **to finish**
 
 ---
+## 5. Attack #2 — Timing Attack and Power Analysis
 
-## 5. Attack #2 — Analysis
+### 5.1. Objective
 
-### Timing Attack via UART
+The objective of this second attack was to recover the password by exploiting a timing vulnerability in the authentication routine.
 
-### Method
+Unlike voltage glitching, which attempts to disturb the execution of the microcontroller, a timing attack exploits information leaked by the normal execution of the program.
 
-First approach: exploit the response time of the password verification routine over the UART interface, without any prior knowledge of the password.
+In our case, the password comparison function checks each character sequentially and stops as soon as an incorrect character is detected.
 
-All 94 printable ASCII characters were tested as possible first characters, each followed by a fixed-length padding sequence, and each candidate was tested 30 times.
-The Python script can be found here (link to `timing_attack.py`).
+Therefore, the more correct characters we provide at the beginning of the password, the longer the comparison should take.
 
-### Result
+### 5.2. Identified Vulnerability
 
-- Measured response times: ~43.4 ms
-- Standard deviations among the highest-ranked candidates: ranging from ~56 to ~135 µs
-- Character with the highest median response time: `G`
-- However, the difference between the top-ranked candidates was only a few microseconds, **not statistically significant**
-- Repeated measurements gave completely different results each time, so the method was judged to be ineffective.
+After examining the unpatched source code, we identified the function `early_exit_compare()` as the main vulnerability.
 
-### Interpretation
+The function compares the user input against the stored password and immediately returns `false` when a character does not match.
 
-Measuring response time via Python and USB-UART is **not precise enough** to reliably identify the correct character. At 9600 baud, sending 1 bit takes approximately 1 ms. In comparison, one clock cycle at 16 MHz is 62.5 ns. That is much shorter than the UART transmission time.
+For example:
 
-An improvement is to use the ChipWhisperer Nano to obtain measurements synchronized with the execution of the password verification routine, with the advantage of being less sensitive to electrical noise than software-side measurements on the PC. That will be the second attack.
+- `XXXXXXXX` — comparison stops at the first character.
+- `AXXXXXXX` — if `A` is correct, comparison continues to the second character.
+- `ABXXXXXX` — if `AB` is correct, comparison continues to the third character.
 
----
+Each additional correct character requires another iteration of the comparison loop.
 
-### Power Analysis (SPA) with the ChipWhisperer Nano
+This creates a potential timing side channel that could allow an attacker to reconstruct the password progressively, without testing every possible combination.
 
+However, the artificial 50 µs delay originally present in the source code was commented out. Consequently, the expected timing differences between candidates were extremely small.
 
-### Method
+### 5.3. First Approach — Software Timing Measurements
 
-**Hardware setup**: the ATmega328P was removed from the Arduino Uno board and placed on a breadboard to obtain a cleaner current measurement point, isolated from the rest of the circuit (USB-serial chip, voltage regulator, LEDs). The whole process is described in this repository (**add the link to the DLH GitHub repository**).
+Our first approach was to measure the time between sending an incorrect password and receiving the first byte of the Arduino's response.
 
+We developed a Python script using the `pyserial` library.
 
+The script tested different possible first characters, followed by a fixed padding sequence to maintain the same password length.
 
-### Result
+Each candidate was tested 30 times, and the tests were performed in a randomized order to reduce measurement bias.
 
-Even with communication working, `scope.capture()` consistently timed out (`Timeout in cwnano capture()`), regardless of whether the UART exchange itself succeeded.
+For each candidate, we calculated the median response time and the standard deviation.
 
-**Root cause identified**: `scope.capture()` waits for a hardware trigger edge on `TIO4`, not for UART activity — sending bytes over UART alone does not trigger a capture. The firmware drives pin 13 (D13) HIGH before the password comparison and LOW right after (a usable trigger signal), but this pin was **not yet physically wired** to TIO4 (pin 16 of the CW-Nano's 20-pin connector) at the time of this session. No trigger edge ever reached the capture device, so a timeout means that no trigger edge was detected — not that the UART response was late. The notebook raises an actionable error in this case rather than attempting to plot an empty trace.
+#### Results
 
-No trace could be recorded during this session; no secret has been recovered via this method yet.
+The measured response times were approximately 43.4 ms. The candidate `G` initially appeared to have the highest median response time.
 
-### Conclusion
+However, the timing differences between the highest-ranked candidates were only a few microseconds, while the measurement dispersion was significantly larger.
 
-The targeted vulnerability (early-exit password comparison, see Section 6) is still believed to be exploitable via power analysis, but requires a proper trigger connection to be observable with the CW-Nano.
+Repeating the experiment produced completely different rankings.
 
-**Next steps**:
-- Wire ATmega pin 19 (D13) to CW-Nano pin 16 (TIO4)
-- Configure the scope: `scope.io.tio4 = 'high_z'`, `scope.trigger.triggers = 'tio4'`, `scope.adc.basic_mode = "rising_edge"`
-- Re-attempt trace capture and visually compare traces for different candidate passwords before building a full brute-force script
+We therefore concluded that the measurements were not reliable enough to determine the correct password character.
 
-### Expected results
+#### Interpretation
 
-Once the trigger is correctly wired, each capture window should correspond exactly to the time the firmware spends with pin 13 driven HIGH, i.e. the duration of `early_exit_compare()` (and, for a correct guess, the subsequent hashing routine as well). This matches the course's SPA methodology (see *SPA on RSA*, ES5T-T1/03): identify recurring patterns in the trace and map them back to the algorithm's branches.
+The measured duration included several operations unrelated to the password comparison:
 
-**What a trace should look like**
-- A short, mostly flat/low-activity region for most of the capture if the attempt fails on an early character, since `early_exit_compare()` returns almost immediately.
-- A visibly **longer active region** (more oscillation / more instructions executed) when a leading character of the attempt matches the real password, because the comparison loop runs one more iteration before returning `false`.
-- Once all 8 characters match, the trace should extend noticeably further still, covering `protected_section()`: salt generation (`random()` calls) and the SHA3-256 hashing of the secret — a clearly longer and busier trace than any failed attempt.
+- UART transmission.
+- USB communication with the computer.
+- Operating system scheduling.
+- Python execution overhead.
+- Arduino response transmission.
 
-**What we are looking for, concretely**
-- A usable metric is the **duration of the active/high-activity window** (e.g. number of samples above a baseline threshold, or simply the time between trigger high and trigger low if captured separately). This duration should increase monotonically as more leading characters of a guess match the real password — same principle as the `t_bad < t_correct` relationship shown for the PIN-pad example in the course, and the `Q`/`L` pattern mapping used for the RSA SPA example.
-- For a fixed, fully wrong candidate character, repeated captures should be highly similar to each other (low variance) — this is the "this part of the trace stays highly similar" baseline mentioned in the course notes, and is a good sanity check before trusting the metric.
+At 9600 baud, one transmitted bit takes approximately 104 µs, whereas one CPU cycle at 16 MHz takes only 62.5 ns.
 
-**Expected final deliverable**
-- The recovered password, confirmed by sending it and observing `>> ACCESS GRANTED` instead of `>> ACCESS DENIED`.
-- The hash and salt printed by `protected_section()` in response to the correct password, as required by the project's deliverables.
-- A plot (saved from the Jupyter notebook) showing at least: one trace for a fully incorrect attempt, one trace for a partially correct attempt (1–2 leading characters correct), and one trace for the fully correct password — illustrating the growing active-region duration described above. This is the key piece of evidence for the "vulnerability correctly identified, with proof" criterion in the write-up grading grid.
+The duration of an additional comparison-loop iteration could therefore be hidden by the communication and measurement overhead.
 
-`[TO COMPLETE]`: once the trigger is wired and traces have been obtained, fill in this section with your actual plots and the recovered password/hash/salt.
+This explains why the initial Python-based approach did not produce reproducible results.
+
+### 5.4. Second Approach — Using the ChipWhisperer Nano
+
+To improve our measurements, we decided to use the ChipWhisperer Nano.
+
+The objective was to replace the timing measurements performed on the computer with hardware-synchronized measurements closer to the execution of the microcontroller.
+
+#### Hardware Preparation
+
+Following the course documentation, we removed the ATmega328P from the Arduino Uno board and placed it on a breadboard.
+
+This configuration was intended to provide better access to the microcontroller's power supply and communication signals while reducing interference from other components on the Arduino board.
+
+The ChipWhisperer was connected to the UART interface, using the previously identified communication pins.
+
+#### Planned Experimental Method
+
+If synchronization had worked, the following procedure would have been implemented:
+
+1. Configure the ChipWhisperer Nano to detect the trigger signal generated during password verification.
+2. Send a deliberately incorrect password to establish a reference measurement.
+3. Capture the microcontroller's power consumption during the comparison routine.
+4. Repeat the acquisition for different candidate characters.
+5. Compare the resulting traces and identify differences related to the number of executed comparison-loop iterations.
+6. Select the most likely character and repeat the process for the next position.
+7. Continue until the complete password is recovered, then confirm it using the Arduino's authentication response.
+
+The measurements would have been repeated to distinguish meaningful differences from electrical noise.
+
+### 5.5. Experimental Limitation — Synchronization Failure
+
+Unfortunately, we encountered another synchronization problem when using the ChipWhisperer Nano.
+
+The acquisition system did not detect the expected trigger event, and `scope.capture()` returned a timeout.
+
+A UART exchange alone is not sufficient to initiate a hardware-triggered capture. The ChipWhisperer must detect the configured trigger signal before recording the acquisition.
+
+In our case, this synchronization could not be established reliably.
+
+Consequently, we were unable to record usable power traces during password verification.
+
+Since no valid traces were available, we could not compare the execution times of different password candidates or validate the expected side-channel leakage experimentally.
+
+**The password was therefore not recovered through this attack.**
+
+### 5.6. Expected Results
+
+If the acquisition had worked correctly, we would have expected to observe differences between the measurements corresponding to incorrect and partially correct passwords.
+
+A candidate with an incorrect first character should cause the comparison function to terminate almost immediately.
+
+A candidate with one correct leading character should require one additional comparison iteration.
+
+Similarly, a candidate with two correct leading characters should require another iteration.
+
+By comparing multiple synchronized measurements, we could attempt to identify which candidate caused the longest execution.
+
+However, because the artificial delay in the source code was disabled, these differences might still have been too small for reliable detection, even with the ChipWhisperer.
+
+Successful synchronization would therefore have been a necessary condition for the experiment, but not a guarantee of password recovery.
 ---
 
 ## 6. The Exploited Vulnerability — and Countermeasure Ideas
