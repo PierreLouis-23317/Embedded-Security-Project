@@ -113,8 +113,68 @@ flowchart LR
 
 ## 4. Attack #1 — Voltage Glitching
 
-`[TO COMPLETE]`
+## 4. Attack #1 — Voltage Glitching
 
+### Objective
+
+The objective of this attack is to bypass the password verification mechanism of the Arduino Uno using voltage glitching, without knowing the correct password.
+
+### What is Voltage Glitching?
+
+Voltage glitching is a fault injection technique that consists of briefly disturbing the power supply of a microcontroller during its execution.
+
+By introducing a short voltage drop at a specific moment, we can potentially cause the CPU to execute instructions incorrectly, skip an instruction, or modify the expected program behaviour.
+
+In our case, the objective is to inject a voltage glitch while the ATmega328P is checking the password, potentially bypassing the authentication mechanism and executing the protected section of the program.
+
+### Method
+
+We use a **ChipWhisperer Nano (CW-Nano)** to perform the attack. Its built-in MOSFET can briefly pull the target's supply voltage towards ground, creating a controlled voltage disturbance.
+
+The planned attack consists of three steps:
+
+**1. Synchronization**
+
+First, we need to synchronize the ChipWhisperer with the Arduino's execution.
+
+The firmware uses pin D13 as a trigger signal, which is expected to transition HIGH when the password comparison begins.
+
+By connecting D13 to the ChipWhisperer's TIO4 input, we should be able to detect this rising edge and synchronize our measurements.
+
+**2. Power Analysis**
+
+Once synchronization is working, we can capture the power consumption of the ATmega328P while sending an incorrect password.
+
+By analyzing the power traces, we aim to identify the different execution phases and determine when the password comparison takes place.
+
+This should help us identify the most relevant time window for fault injection.
+
+**3. Voltage Glitch Injection**
+
+Once the critical execution window has been identified, we can use the ChipWhisperer Nano to inject a short voltage glitch during the password verification.
+
+By varying the injection timing and pulse duration, we would attempt to disturb the execution of the comparison routine.
+
+The UART response would then be monitored to determine whether the Arduino rejects the password, resets, or unexpectedly grants access.
+
+### Experimental Limitation
+
+Unfortunately, we encountered a synchronization problem during our experiments with chipwhisperer.
+
+Despite connecting the trigger signal and configuring the ChipWhisperer Nano, we were unable to detect the expected rising edge on TIO4.
+
+Consequently, `scope.capture()` consistently timed out, preventing us from recording synchronized power traces.
+
+Since we could not identify the password verification window, **the voltage glitch injection phase was not performed**.
+However i will discuss the logical steps that would have been taken if the synchronization had worked.
+
+### Expected Results
+
+
+when a syncronisation was established, we would send wrong passwords and capture the power traces. We would then analyze the traces to identify the execution window of the password comparison routine. when we think we have idetified the rigth windows, i.e when the chip was comparing the password a voltage glitch would be injected. the excepted result is to bypass the verification and even with a wrong password have the access granted. 
+**to finish**
+
+---
 ---
 
 ## 5. Attack #2 — Analysis
