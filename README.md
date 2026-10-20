@@ -11,8 +11,8 @@ This repository contains the work done for the Embedded Security Project, a cour
 The main objective of this project is to analyze and attack an Arduino Uno R3 from a hardware security perspective. The Arduino contains an unknown program protected by a password; the goal is to find vulnerabilities that allow bypassing this protection and retrieving the secret (hash + salt) stored in the firmware.
 
 To achieve this, several attack techniques were explored:
-- **Timing analysis**
 - **Voltage Glitching**
+- **Timing analysis**
 
 This report documents the approach, experiments, results (both positive and negative), and conclusions drawn throughout the project.
 
@@ -111,7 +111,15 @@ flowchart LR
 
 ---
 
-## 4. Attack #1 — Timing Attack via UART
+## 4. Attack #1 — Voltage Glitching
+
+`[TO COMPLETE]`
+
+---
+
+## 5. Attack #2 — Analysis
+
+### Timing Attack via UART
 
 ### Method
 
@@ -136,7 +144,7 @@ An improvement is to use the ChipWhisperer Nano to obtain measurements synchroni
 
 ---
 
-## 5. Attack #1.2 — Power Analysis (SPA) with the ChipWhisperer Nano
+### Power Analysis (SPA) with the ChipWhisperer Nano
 
 
 ### Method
@@ -181,20 +189,6 @@ Once the trigger is correctly wired, each capture window should correspond exact
 - A plot (saved from the Jupyter notebook) showing at least: one trace for a fully incorrect attempt, one trace for a partially correct attempt (1–2 leading characters correct), and one trace for the fully correct password — illustrating the growing active-region duration described above. This is the key piece of evidence for the "vulnerability correctly identified, with proof" criterion in the write-up grading grid.
 
 `[TO COMPLETE]`: once the trigger is wired and traces have been obtained, fill in this section with your actual plots and the recovered password/hash/salt.
-
-
-## 5. Attack #2 — Voltage Glitching
-
-### Method
-
-The objective of a voltage glitching attack is to intentionally disturb the microcontroller's power supply for a very short period in order to skip an instruction.
-
-With the Arduino, the idea is to introduce a fault while the microcontroller is verifying the password, potentially causing it to accept an incorrect password.
-
-
-### CVSS v4.0 Assessment
-
-(just add an image?)
 ---
 
 ## 6. The Exploited Vulnerability — and Countermeasure Ideas
