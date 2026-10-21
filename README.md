@@ -173,10 +173,54 @@ However i will discuss the logical steps that would have been taken if the synch
 when a syncronisation was established, we would send wrong passwords and capture the power traces. We would then analyze the traces to identify the execution window of the password comparison routine. when we think we have idetified the rigth windows, i.e when the chip was comparing the password a voltage glitch would be injected. the excepted result is to bypass the verification and even with a wrong password have the access granted. 
 **to finish**
 
----
-## 5. Attack #2 — Timing Attack and Power Analysis
 
-### 5.1. Objective
+## 5. Severity of the Attack
+
+### CVSS v4.0 Base Metrics
+
+This assessment considers a hypothetical successful voltage glitching attack against the Arduino Uno R3.
+
+The objective is to bypass the password verification mechanism by injecting a short voltage disturbance during the authentication process. If successful, the attacker could access the protected hash and salt without knowing the correct password.
+
+**Exploitability**
+
+- **AV:P — Physical:** The attacker requires physical access to the Arduino and its power supply to connect the ChipWhisperer Nano and inject voltage faults.
+- **AC:L — Low:** Assuming the absence of effective fault injection countermeasures, no additional security mechanism needs to be circumvented once the attack setup has been established.
+- **AT:P — Present:** Successful exploitation depends on injecting the voltage glitch during a specific execution window. Several attempts may be necessary to trigger the desired execution fault.
+- **PR:N — None:** No password or prior authentication is required to perform the attack.
+- **UI:N — None:** The attack does not require interaction from another user.
+
+**Impact on the Arduino**
+
+- **VC:H — High:** A successful authentication bypass would allow the attacker to retrieve the protected hash and salt, compromising the confidentiality of the project's protected asset.
+- **VI:N — None:** The assumed attack does not involve persistent modification of the firmware or stored data.
+- **VA:N — None:** The successful attack scenario does not involve a demonstrated loss of availability. Temporary resets or crashes during unsuccessful glitch attempts are not included in this assessment.
+
+**Impact on subsequent systems**
+
+- **SC:N — None:** No other system's confidential information is exposed.
+- **SI:N — None:** No other system's integrity is affected.
+- **SA:N — None:** No other system's availability is affected.
+
+**Base vector**
+
+`CVSS:4.0/AV:P/AC:L/AT:P/PR:N/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N`
+
+The resulting CVSS v4.0 Base Score is **4.1 (Medium)**.
+
+Score calculated using the [NVD CVSS v4.0 Calculator](https://nvd.nist.gov/vuln-metrics/cvss/v4-calculator).
+
+### Experimental Limitation
+
+This severity assessment is hypothetical. During the experiments, synchronization with the target could not be established because the ChipWhisperer Nano failed to detect the expected trigger signal.
+
+Consequently, no synchronized voltage glitch was performed, and the authentication bypass was not experimentally demonstrated.
+
+The CVSS score therefore represents the potential severity of a successful attack under the stated assumptions, rather than a confirmed exploitation result.
+---
+## 6. Attack #2 — Timing Attack and Power Analysis
+
+### 6.1. Objective
 
 The objective of this second attack was to recover the password by exploiting a timing vulnerability in the authentication routine.
 
@@ -186,7 +230,7 @@ In our case, the password comparison function checks each character sequentially
 
 Therefore, the more correct characters we provide at the beginning of the password, the longer the comparison should take.
 
-### 5.2. Identified Vulnerability
+### 6.2. Identified Vulnerability
 
 After examining the unpatched source code, we identified the function `early_exit_compare()` as the main vulnerability.
 
@@ -204,7 +248,7 @@ This creates a potential timing side channel that could allow an attacker to rec
 
 However, the artificial 50 µs delay originally present in the source code was commented out. Consequently, the expected timing differences between candidates were extremely small.
 
-### 5.3. First Approach — Software Timing Measurements
+### 6.3. First Approach — Software Timing Measurements
 
 Our first approach was to measure the time between sending an incorrect password and receiving the first byte of the Arduino's response.
 
@@ -242,7 +286,7 @@ The duration of an additional comparison-loop iteration could therefore be hidde
 
 This explains why the initial Python-based approach did not produce reproducible results.
 
-### 5.4. Second Approach — Using the ChipWhisperer Nano
+### 6.4. Second Approach — Using the ChipWhisperer Nano
 
 To improve our measurements, we decided to use the ChipWhisperer Nano.
 
@@ -270,7 +314,7 @@ If synchronization had worked, the following procedure would have been implement
 
 The measurements would have been repeated to distinguish meaningful differences from electrical noise.
 
-### 5.5. Experimental Limitation — Synchronization Failure
+### 6.5. Experimental Limitation — Synchronization Failure
 
 Unfortunately, we encountered another synchronization problem when using the ChipWhisperer Nano.
 
@@ -286,7 +330,7 @@ Since no valid traces were available, we could not compare the execution times o
 
 **The password was therefore not recovered through this attack.**
 
-### 5.6. Expected Results
+### 6.6. Expected Results
 
 If the acquisition had worked correctly, we would have expected to observe differences between the measurements corresponding to incorrect and partially correct passwords.
 
@@ -303,7 +347,7 @@ However, because the artificial delay in the source code was disabled, these dif
 Successful synchronization would therefore have been a necessary condition for the experiment, but not a guarantee of password recovery.
 ***
 
-## 6. The Exploited Vulnerability — and Countermeasure Ideas
+## 7. The Exploited Vulnerability — and Countermeasure Ideas
 
 With the help of the source code, we can implement solutions at zero cost in order to make our embedded platform more robust.
 All the corrections are documented in the code (make a patched and an unpatched version).
@@ -355,7 +399,7 @@ According to the course wiki, the minimal write-up must contain:
 - [ ] Asset description (the secret: hash + salt)
 - [x] Hardware necessary + interfacing schematics *(partial — complete Sections 1 and 5)*
 - [x] Attack tree *(skeleton provided in Section 3, to adapt)*
-- [ ] Severity assessment (CVSS v4) — **not done yet, needs to be added**
+- [x] Severity assessment (CVSS v4) — 
 - [x] Attack(s) description and implementation *(Sections 4 and 5)*
 - [x] Proposed countermeasure(s) *(Section 6, needs deeper justification/demonstration)*
 - [ ] Conclusion and lessons learned
