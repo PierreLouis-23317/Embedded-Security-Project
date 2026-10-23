@@ -17,6 +17,31 @@ This report documents the approach, experiments, results (both positive and nega
 
 ---
 
+## Repository Structure
+
+This repository contains all the code and documentation used during the project. Each folder corresponds to a different part of the work.
+
+- **`Timing_Attack/`**: Contains the Python script used for the timing attack and the Jupyter notebook for the power analysis on the ATmega328P.
+
+- **`image/`**: Contains the images used to illustrate the report, including pictures of the hardware and experimental setup.
+
+- **`source_code/`**: Contains the original Arduino firmware (`source_code_not_patched.ino`) and the modified version (`source_code_patched.ino`) with the proposed security improvements.
+
+- **`voltage_glitch/`**: Contains the Jupyter notebook used to prepare and test the voltage glitching attack with the ChipWhisperer Nano.
+
+- **`UART_connection.py`**: Python script used to communicate with the Arduino through the UART interface.
+
+- **`spa_vault_attack.ipynb`**: Jupyter notebook used to experiment with the ChipWhisperer Nano and Simple Power Analysis (SPA).
+
+- **`requirements.txt`**: Lists the Python libraries needed to run the scripts and notebooks.
+
+- **`README.md`**: The main project report, explaining the attacks, experiments, results, and conclusions.
+
+- **`.gitignore`**: Specifies which temporary or unnecessary files Git should ignore.
+
+- **`LICENSE`**: Contains the license information for the repository.
+---
+
 ## 1. Hardware Overview
 
 - **Arduino Uno R3** — the target, with an **ATmega328P** microcontroller
