@@ -438,14 +438,3 @@ In the end, this project reminded me of a basic engineering rule: **start simple
 Hash cracking was not attempted during this project.
 
 
-
-## Checklist Before Submitting
-
-According to the course wiki, the minimal write-up must contain:
-- [ ] Asset description (the secret: hash + salt)
-- [x] Hardware necessary + interfacing schematics *(partial — complete Sections 1 and 5)*
-- [x] Attack tree *(skeleton provided in Section 3, to adapt)*
-- [x] Severity assessment (CVSS v4) — 
-- [x] Attack(s) description and implementation *(Sections 4 and 5)*
-- [x] Proposed countermeasure(s) *(Section 6, needs deeper justification/demonstration)*
-- [X] Conclusion and lessons learned
