@@ -58,7 +58,7 @@ This repository contains all the code and documentation used during the project.
 The USB port does not work. We need to find another way to communicate with the target.
 Before attacking anything, you need to know **what we are talking to**: which pin handles the password communication (RX/TX), and which pin can serve as a trigger signal to synchronize CW-Nano measurements with code execution. Of course, the classical TX and RX pins of the Arduino were not the pins used to enter the password; an error message says (**welcome to the vaulnt. This is not the main entrance.**).
 With the help of another student, the solution was simple. Using PulseView software and a little common sense, the TX port probably sends a welcome message at the beginning. We simply needed to analyse every signal from the Arduino's ports and see where there was communication (fluctuations of bits). There was communication on port 11. A simple check with the Tera Term software confirmed our intuition. The second port, RX, was found using a brute-force method. I simply tried sending nonsense to every port. A response was given by port 10. So pin 11 is **TX** and port 10 is **RX**. For the baud rate, I simply tested some standard conventions; 9600 was the correct value. A more elegant way to find baud rate would be to deduce it from the frequency of the TX signal.
-![UART response](image\TX_response.png)
+![UART response](image/TX_response.png)
 
 
 ## 3. Attack Tree
