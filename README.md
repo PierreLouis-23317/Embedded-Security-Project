@@ -166,14 +166,20 @@ Despite connecting the trigger signal and configuring the ChipWhisperer Nano, we
 Consequently, `scope.capture()` consistently timed out, preventing us from recording synchronized power traces.
 
 Since we could not identify the password verification window, **the voltage glitch injection phase was not performed**.
-However i will discuss the logical steps that would have been taken if the synchronization had worked.
+
 
 ### Expected Results
 
 
-when a syncronisation was established, we would send wrong passwords and capture the power traces. We would then analyze the traces to identify the execution window of the password comparison routine. when we think we have idetified the rigth windows, i.e when the chip was comparing the password a voltage glitch would be injected. the excepted result is to bypass the verification and even with a wrong password have the access granted. 
-**to finish**
+Three main outcomes would have been possible:
 
+1. **Normal operation:** The Arduino rejects the incorrect password and returns `ACCESS DENIED`. This would indicate that the voltage glitch did not affect the authentication decision.
+
+2. **System instability:** The Arduino resets, crashes, or stops responding. This would indicate that the voltage disturbance affected the microcontroller, but did not produce the intended authentication bypass.
+
+3. **Successful authentication bypass:** The Arduino accepts an incorrect password and executes the protected section of the firmware, returning the secret hash and salt. This would demonstrate a successful fault injection attack.
+
+The ultimate objective would have been to identify a reproducible combination of glitch timing and pulse width that bypasses password verification without causing the microcontroller to reset.
 
 ## 5. Severity of the Attack
 
