@@ -223,7 +223,6 @@ This severity assessment is hypothetical. During the experiments, synchronizatio
 
 Consequently, no synchronized voltage glitch was performed, and the authentication bypass was not experimentally demonstrated.
 
-The CVSS score therefore represents the potential severity of a successful attack under the stated assumptions, rather than a confirmed exploitation result.
 ---
 ## 6. Attack #2 — Timing Attack and Power Analysis
 
