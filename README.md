@@ -31,7 +31,7 @@ This repository contains all the code and documentation used during the project.
 
 - **`UART_connection.py`**: Python script used to communicate with the Arduino through the UART interface.
 
-- **`spa_vault_attack.ipynb`**: Jupyter notebook used to experiment with the ChipWhisperer Nano and Simple Power Analysis (SPA).
+- **`spa_vault_attack.ipynb`**: Jupyter notebook used to experiment with the ChipWhisperer Nano and Simple Power Analysis (SPA). Keep for information purposes but it is not used in the final report.
 
 - **`requirements.txt`**: Lists the Python libraries needed to run the scripts and notebooks.
 
