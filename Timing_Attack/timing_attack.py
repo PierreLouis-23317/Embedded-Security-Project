@@ -6,7 +6,7 @@ import statistics
 import string
 import csv
 
-PORT = "COM12"  # A adapter
+PORT = "COM12"  # to adapt
 BAUDRATE = 9600
 N = 30
 

@@ -221,7 +221,6 @@ Score calculated using the [NVD CVSS v4.0 Calculator](https://nvd.nist.gov/vuln-
 
 This severity assessment is hypothetical. During the experiments, synchronization with the target could not be established because the ChipWhisperer Nano failed to detect the expected trigger signal.
 
-Consequently, no synchronized voltage glitch was performed, and the authentication bypass was not experimentally demonstrated.
 
 ---
 ## 6. Attack #2 — Timing Attack and Power Analysis
@@ -232,7 +231,7 @@ The objective of this second attack was to recover the password by exploiting a 
 
 Unlike voltage glitching, which attempts to disturb the execution of the microcontroller, a timing attack exploits information leaked by the normal execution of the program.
 
-In our case, the password comparison function checks each character sequentially and stops as soon as an incorrect character is detected.
+In our case, the password comparison function checks each character sequentially and stops as soon as an incorrect character is detected. the vulnerability can be found here [unpatched source code](source_code/source_code_not_patched.ino)
 
 Therefore, the more correct characters we provide at the beginning of the password, the longer the comparison should take.
 
@@ -255,6 +254,8 @@ This creates a potential timing side channel that could allow an attacker to rec
 However, the artificial 50 µs delay originally present in the source code was commented out. Consequently, the expected timing differences between candidates were extremely small.
 
 ### 6.3. First Approach — Software Timing Measurements
+
+[Timing attack on arduinno PCB](Timing_Attack\timing_attack.py)
 
 Our first approach was to measure the time between sending an incorrect password and receiving the first byte of the Arduino's response.
 
@@ -294,13 +295,16 @@ This explains why the initial Python-based approach did not produce reproducible
 
 ### 6.4. Second Approach — Using the ChipWhisperer Nano
 
+[Timing attack on the ATmega328P](Timing_Attack\timing_attack_ATmega328P.ipynb)
+
 To improve our measurements, we decided to use the ChipWhisperer Nano.
 
 The objective was to replace the timing measurements performed on the computer with hardware-synchronized measurements closer to the execution of the microcontroller.
 
 #### Hardware Preparation
 
-Following the course documentation, we removed the ATmega328P from the Arduino Uno board and placed it on a breadboard.
+Following the course documentation, we removed the ATmega328P from the Arduino Uno board and placed it on a breadboard. [official course documentation for connecting to external targets](https://github.com/parastuffs/Embedded-Security/wiki/Connecting-to-an-external-target).
+
 
 This configuration was intended to provide better access to the microcontroller's power supply and communication signals while reducing interference from other components on the Arduino board.
 
@@ -393,11 +397,17 @@ The readLine() function uses a dynamically allocated String without limiting the
 **Countermeasures**: Replace dynamic strings with a fixed-size buffer, enforce a maximum input length, and implement a reception timeout.
 
 
+
 ## Conclusion
 
-unfortunately I was not able to implement the attacks due to a synchronization problem with the ChipWhisperer Nano.
-Even if i'm no in 5MEO i didn't learn the basic rule of enginering make it/ start simple. 
-If the project was to be done again, I would have started with a simple project with SPA and start more time in starting ...
+Even though I was not able to synchronize the ChipWhisperer Nano with the Arduino, this project was still a good learning experience.
+
+I could not complete the attacks, but I was able to work on most of the steps: finding the communication pins, understanding the code, planning the attacks, and preparing the hardware. The main problem was the synchronization, which stopped me from going further.
+
+If I had to do this project again, I would start with something easier instead of directly trying voltage glitching. I would first try a simple power analysis, make sure everything works, and then move to more difficult attacks.
+
+In the end, this project reminded me of a basic engineering rule: **start simple and increase the difficulty step by step.** Even if I did not manage to recover the secret, I learned a lot about hardware security and the practical difficulties of performing an attack.
+
 
 ## Checklist Before Submitting
 
