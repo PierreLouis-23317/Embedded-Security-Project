@@ -408,6 +408,11 @@ If I had to do this project again, I would start with something easier instead o
 
 In the end, this project reminded me of a basic engineering rule: **start simple and increase the difficulty step by step.** Even if I did not manage to recover the secret, I learned a lot about hardware security and the practical difficulties of performing an attack.
 
+## Post scriptum
+
+Hash cracking was not attempted during this project.
+
+
 
 ## Checklist Before Submitting
 
@@ -418,4 +423,4 @@ According to the course wiki, the minimal write-up must contain:
 - [x] Severity assessment (CVSS v4) — 
 - [x] Attack(s) description and implementation *(Sections 4 and 5)*
 - [x] Proposed countermeasure(s) *(Section 6, needs deeper justification/demonstration)*
-- [ ] Conclusion and lessons learned
+- [X] Conclusion and lessons learned
